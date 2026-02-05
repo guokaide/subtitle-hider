@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subtitle Hider</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="title">Subtitle Hider</h1>
+    </header>
+
+    <button id="toggleBtn" class="toggle-switch" aria-label="Toggle subtitle hider">
+      <span class="toggle-slider" id="toggleIndicator"></span>
+    </button>
+
+    <div class="status" id="statusText">Off</div>
+
+    <footer class="footer">
+      <div class="instructions">
+        <div class="instruction-item">
+          <span class="instruction-key">⌘⇧S</span>
+          <span class="instruction-text">to toggle</span>
+        </div>
+        <div class="instruction-item">
+          <span class="instruction-key">drag</span>
+          <span class="instruction-text">to move</span>
+        </div>
+        <div class="instruction-item">
+          <span class="instruction-key">scroll</span>
+          <span class="instruction-text">to resize</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

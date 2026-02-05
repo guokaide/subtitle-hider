@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Icon Generator - Subtitle Hider</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(135deg, #87CEEB 0%, #e3f2fd 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 24px;
+      padding: 50px;
+      box-shadow: 0 20px 60px rgba(135, 206, 235, 0.3);
+    }
+
+    h1 {
+      color: #5cacee;
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 32px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #87CEEB;
+      margin-bottom: 40px;
+      font-size: 16px;
+    }
+
+    .preview-section {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      align-items: center;
+      margin: 40px 0;
+      flex-wrap: wrap;
+    }
+
+    .canvas-wrapper {
+      text-align: center;
+      padding: 30px;
+      background: #f8fbff;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .canvas-wrapper:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(135, 206, 235, 0.2);
+    }
+
+    canvas {
+      display: block;
+      margin: 0 auto 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .label {
+      font-size: 14px;
+      color: #5cacee;
+      font-weight: 600;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin: 40px 0;
+      flex-wrap: wrap;
+    }
+
+    button {
+      background: linear-gradient(135deg, #87CEEB 0%, #5cacee 100%);
+      color: white;
+      border: none;
+      padding: 18px 40px;
+      font-size: 16px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 600;
+      box-shadow: 0 4px 15px rgba(135, 206, 235, 0.3);
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(135, 206, 235, 0.4);
+    }
+
+    button:active {
+      transform: translateY(-1px);
+    }
+
+    .success-msg {
+      background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+      border: 2px solid #28a745;
+      color: #155724;
+      padding: 18px 25px;
+      border-radius: 12px;
+      margin: 25px 0;
+      display: none;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .success-msg.show {
+      display: block;
+      animation: slideIn 0.4s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .info {
+      background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+      border-left: 5px solid #87CEEB;
+      padding: 20px 25px;
+      margin: 25px 0;
+      border-radius: 12px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .info code {
+      background: #ffffff;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+      font-size: 13px;
+      color: #5cacee;
+      font-weight: 600;
+    }
+
+    .design-info {
+      background: #fff9e6;
+      border-left: 5px solid #ffc107;
+      padding: 20px 25px;
+      margin: 25px 0;
+      border-radius: 12px;
+    }
+
+    .design-info h3 {
+      color: #f57c00;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .design-info ul {
+      list-style: none;
+      padding: 0;
+      color: #666;
+      line-height: 1.8;
+    }
+
+    .design-info li:before {
+      content: "✓ ";
+      color: #ffc107;
+      font-weight: bold;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎬 Subtitle Hider - 极简图标</h1>
+    <p class="subtitle">清新简约风格 · 白色背景 · 浅蓝主色</p>
+
+    <div class="design-info">
+      <h3>🎨 设计特点</h3>
+      <ul>
+        <li>纯白背景，干净清爽</li>
+        <li>浅蓝色（天空蓝）主色调</li>
+        <li>极简字幕框 + 红色禁止符号</li>
+        <li>扁平化设计，清晰易识别</li>
+      </ul>
+    </div>
+
+    <div class="info">
+      <strong>📌 使用说明：</strong>
+      点击下方按钮生成并下载对应尺寸的 PNG 图标文件，保存到 <code>icons/</code> 文件夹中替换原文件。
+    </div>
+
+    <div class="preview-section">
+      <div class="canvas-wrapper">
+        <canvas id="canvas16" width="16" height="16"></canvas>
+        <span class="label">16 × 16</span>
+      </div>
+      <div class="canvas-wrapper">
+        <canvas id="canvas48" width="48" height="48"></canvas>
+        <span class="label">48 × 48</span>
+      </div>
+      <div class="canvas-wrapper">
+        <canvas id="canvas128" width="128" height="128"></canvas>
+        <span class="label">128 × 128</span>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button onclick="downloadIcon(16)">📥 16×16</button>
+      <button onclick="downloadIcon(48)">📥 48×48</button>
+      <button onclick="downloadIcon(128)">📥 128×128</button>
+    </div>
+
+    <div class="button-group">
+      <button onclick="downloadAll()" style="background: linear-gradient(135deg, #5cacee 0%, #87CEEB 100%);">📦 一键下载全部</button>
+    </div>
+
+    <div id="successMsg" class="success-msg"></div>
+  </div>
+
+  <script>
+    // 绘制图标到 canvas
+    function drawIcon(size) {
+      const canvas = document.getElementById('canvas' + size);
+      const ctx = canvas.getContext('2d');
+
+      // 清空画布
+      ctx.clearRect(0, 0, size, size);
+
+      // 计算缩放比例
+      const scale = size / 128;
+
+      // 绘制白色背景
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, size, size);
+
+      // 绘制浅蓝色圆形背景（更大）
+      ctx.fillStyle = '#e3f2fd';
+      ctx.beginPath();
+      ctx.arc(64 * scale, 64 * scale, 58 * scale, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 绘制字幕框（放大）
+      ctx.fillStyle = '#87CEEB';
+      ctx.strokeStyle = '#5cacee';
+      ctx.lineWidth = 3 * scale;
+
+      // 圆角矩形字幕框
+      roundRect(ctx, 18 * scale, 40 * scale, 92 * scale, 48 * scale, 10 * scale);
+      ctx.fill();
+      ctx.stroke();
+
+      // 绘制字幕线条（更粗）
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 5 * scale;
+      ctx.lineCap = 'round';
+
+      // 第一条线
+      ctx.beginPath();
+      ctx.moveTo(32 * scale, 58 * scale);
+      ctx.lineTo(96 * scale, 58 * scale);
+      ctx.stroke();
+
+      // 第二条线
+      ctx.beginPath();
+      ctx.moveTo(32 * scale, 74 * scale);
+      ctx.lineTo(80 * scale, 74 * scale);
+      ctx.stroke();
+
+      // 绘制红色禁止符号（更大）
+      ctx.fillStyle = '#ff6b6b';
+      ctx.globalAlpha = 0.95;
+      ctx.beginPath();
+      ctx.arc(102 * scale, 26 * scale, 22 * scale, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1.0;
+
+      // 绘制禁止斜线（更粗）
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 6 * scale;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(86 * scale, 10 * scale);
+      ctx.lineTo(118 * scale, 42 * scale);
+      ctx.stroke();
+
+      return canvas;
+    }
+
+    // 绘制圆角矩形
+    function roundRect(ctx, x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.lineTo(x + width - radius, y);
+      ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+      ctx.lineTo(x + width, y + height - radius);
+      ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+      ctx.lineTo(x + radius, y + height);
+      ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+      ctx.lineTo(x, y + radius);
+      ctx.quadraticCurveTo(x, y, x + radius, y);
+      ctx.closePath();
+    }
+
+    // 下载单个图标
+    function downloadIcon(size) {
+      const canvas = drawIcon(size);
+      const link = document.createElement('a');
+      link.download = `icon${size}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+      showSuccess(`✓ 已下载 icon${size}.png`);
+    }
+
+    // 下载全部图标
+    function downloadAll() {
+      const sizes = [16, 48, 128];
+      let delay = 0;
+
+      sizes.forEach((size) => {
+        setTimeout(() => {
+          downloadIcon(size);
+        }, delay);
+        delay += 600;
+      });
+
+      setTimeout(() => {
+        showSuccess('✓✓✓ 全部图标下载完成！');
+      }, delay + 100);
+    }
+
+    // 显示成功消息
+    function showSuccess(message) {
+      const msg = document.getElementById('successMsg');
+      msg.textContent = message;
+      msg.classList.add('show');
+      setTimeout(() => {
+        msg.classList.remove('show');
+      }, 3500);
+    }
+
+    // 页面加载时绘制所有图标
+    window.onload = function() {
+      [16, 48, 128].forEach(size => {
+        drawIcon(size);
+      });
+    };
+  </script>
+</body>
+</html>
