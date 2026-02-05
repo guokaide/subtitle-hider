@@ -7,6 +7,7 @@ console.log('[Subtitle Hider] document.readyState:', document.readyState);
 let isEnabled = false;
 let maskElement = null;
 let iframeMaskElement = null; // iframe 内部的遮罩
+let subtitleHiderEffect = 'blur'; // blur | mask
 
 // 检测是否为 Bilibili
 const isBilibili = () => {
@@ -56,9 +57,10 @@ function init() {
   console.log('[Subtitle Hider] init() 函数被调用');
 
   // 从storage读取状态
-  chrome.storage.sync.get(['subtitleHiderEnabled', 'maskPosition'], (result) => {
+  chrome.storage.sync.get(['subtitleHiderEnabled', 'maskPosition', 'subtitleHiderEffect'], (result) => {
     console.log('[Subtitle Hider] 从 storage 读取配置:', result);
     isEnabled = result.subtitleHiderEnabled || false;
+    subtitleHiderEffect = result.subtitleHiderEffect || 'blur';
     console.log('[Subtitle Hider] isEnabled:', isEnabled);
     if (isEnabled) {
       createMask(result.maskPosition);
@@ -72,7 +74,14 @@ function init() {
       toggleSubtitle();
       sendResponse({ success: true, enabled: isEnabled });
     } else if (request.action === 'getStatus') {
-      sendResponse({ enabled: isEnabled });
+      sendResponse({ enabled: isEnabled, effect: subtitleHiderEffect });
+    } else if (request.action === 'setSettings') {
+      if (request.effect) {
+        subtitleHiderEffect = request.effect;
+        applyMaskEffect(maskElement);
+        applyMaskEffect(iframeMaskElement);
+      }
+      sendResponse({ success: true });
     }
     return true;
   });
@@ -114,9 +123,6 @@ function createMask(savedPosition = null) {
     left: ${position.left}px;
     width: ${position.width}px;
     height: ${position.height}px;
-    background: rgba(0, 0, 0, 0.85) !important;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     z-index: 2147483647 !important;
     border-radius: 12px;
     cursor: move;
@@ -131,6 +137,7 @@ function createMask(savedPosition = null) {
     visibility: visible !important;
     opacity: 1 !important;
   `;
+  applyMaskEffect(maskElement);
 
   // 添加调整大小手柄（右下角）
   const resizeHandle = document.createElement('div');
@@ -205,9 +212,6 @@ function createMaskInIframes() {
             left: ${position.left}px !important;
             width: ${position.width}px !important;
             height: ${position.height}px !important;
-            background: rgba(0, 0, 0, 0.85) !important;
-            backdrop-filter: blur(8px) !important;
-            -webkit-backdrop-filter: blur(8px) !important;
             z-index: 2147483647 !important;
             border-radius: 12px !important;
             cursor: move !important;
@@ -220,6 +224,7 @@ function createMaskInIframes() {
             opacity: 1 !important;
             overflow: visible !important;
           `;
+          applyMaskEffect(iframeMaskElement);
 
           iframeDoc.body.appendChild(iframeMaskElement);
           console.log('[Subtitle Hider] ✓ iframe 遮罩已创建');
@@ -376,6 +381,19 @@ function saveMaskPosition() {
   };
 
   chrome.storage.sync.set({ maskPosition: position });
+}
+
+function applyMaskEffect(target) {
+  if (!target) return;
+  if (subtitleHiderEffect === 'blur') {
+    target.style.setProperty('background', 'rgba(0, 0, 0, 0.15)', 'important');
+    target.style.setProperty('backdrop-filter', 'blur(12px) saturate(1.1)', 'important');
+    target.style.setProperty('-webkit-backdrop-filter', 'blur(12px) saturate(1.1)', 'important');
+  } else {
+    target.style.setProperty('background', 'rgba(0, 0, 0, 0.85)', 'important');
+    target.style.setProperty('backdrop-filter', 'blur(6px)', 'important');
+    target.style.setProperty('-webkit-backdrop-filter', 'blur(6px)', 'important');
+  }
 }
 
 // 移除遮罩层

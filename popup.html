@@ -9,31 +9,52 @@
 <body>
   <div class="container">
     <header class="header">
-      <h1 class="title">Subtitle Hider</h1>
+      <div class="title-row">
+        <h1 class="title">Subtitle Hider</h1>
+        <span class="status-pill" id="statusText">Off</span>
+      </div>
+      <p class="subtitle">Hide hard-coded subtitles with a precision mask.</p>
     </header>
 
-    <button id="toggleBtn" class="toggle-switch" aria-label="Toggle subtitle hider">
-      <span class="toggle-slider" id="toggleIndicator"></span>
-    </button>
-
-    <div class="status" id="statusText">Off</div>
-
-    <footer class="footer">
-      <div class="instructions">
-        <div class="instruction-item">
-          <span class="instruction-key">⌘⇧S</span>
-          <span class="instruction-text">to toggle</span>
+    <section class="card">
+      <div class="card-row">
+        <div class="card-text">
+          <div class="card-title">Hider</div>
+          <div class="card-sub">Toggle for this tab</div>
         </div>
-        <div class="instruction-item">
-          <span class="instruction-key">drag</span>
-          <span class="instruction-text">to move</span>
+        <button id="toggleBtn" class="toggle-switch" aria-label="Toggle subtitle hider">
+          <span class="toggle-slider" id="toggleIndicator"></span>
+        </button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-row">
+        <div class="card-text">
+          <div class="card-title">Effect</div>
+          <div class="card-sub">Blur or dark mask</div>
         </div>
-        <div class="instruction-item">
-          <span class="instruction-key">scroll</span>
-          <span class="instruction-text">to resize</span>
+        <div class="segmented" role="tablist" aria-label="Effect">
+          <button class="seg-btn" data-effect="blur" aria-pressed="true">Blur</button>
+          <button class="seg-btn" data-effect="mask" aria-pressed="false">Mask</button>
         </div>
       </div>
-    </footer>
+    </section>
+
+    <section class="tips">
+      <div class="tip">
+        <span class="tip-key">⌘⇧S</span>
+        <span class="tip-text">toggle</span>
+      </div>
+      <div class="tip">
+        <span class="tip-key">drag</span>
+        <span class="tip-text">move</span>
+      </div>
+      <div class="tip">
+        <span class="tip-key">scroll</span>
+        <span class="tip-text">resize</span>
+      </div>
+    </section>
   </div>
 
   <script src="popup.js"></script>

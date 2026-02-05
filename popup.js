@@ -2,10 +2,12 @@
 const toggleBtn = document.getElementById('toggleBtn');
 const toggleIndicator = document.getElementById('toggleIcon');
 const statusText = document.getElementById('statusText');
+const effectButtons = Array.from(document.querySelectorAll('.seg-btn'));
 
 // 初始化
 document.addEventListener('DOMContentLoaded', () => {
   updateStatus();
+  loadEffect();
 });
 
 // 检查是否是受限制的页面
@@ -36,6 +38,13 @@ toggleBtn.addEventListener('click', async () => {
   } catch (error) {
     console.error('Error:', error);
   }
+});
+
+effectButtons.forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const effect = btn.dataset.effect;
+    setEffect(effect);
+  });
 });
 
 function showRestrictedMessage() {
@@ -77,11 +86,22 @@ async function updateStatus() {
       return;
     }
 
+    chrome.storage.sync.get(['subtitleHiderEnabled', 'subtitleHiderEffect'], (result) => {
+      if (typeof result.subtitleHiderEnabled === 'boolean') {
+        updateUI(result.subtitleHiderEnabled);
+      }
+      if (result.subtitleHiderEffect) {
+        setActiveEffect(result.subtitleHiderEffect);
+      }
+    });
+
     chrome.tabs.sendMessage(tab.id, { action: 'getStatus' }, (response) => {
       if (chrome.runtime.lastError || !response) {
-        updateUI(false);
-      } else {
-        updateUI(response.enabled);
+        return;
+      }
+      updateUI(response.enabled);
+      if (response.effect) {
+        setActiveEffect(response.effect);
       }
     });
   } catch (error) {
@@ -106,4 +126,39 @@ function updateUI(enabled, restricted = false) {
     toggleBtn.classList.remove('active');
     toggleBtn.disabled = false;
   }
+}
+
+function loadEffect() {
+  chrome.storage.sync.get(['subtitleHiderEffect'], (result) => {
+    const effect = result.subtitleHiderEffect || 'blur';
+    setActiveEffect(effect);
+  });
+}
+
+async function setEffect(effect) {
+  setActiveEffect(effect);
+  chrome.storage.sync.set({ subtitleHiderEffect: effect });
+
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (isRestrictedUrl(tab.url)) {
+      return;
+    }
+
+    chrome.tabs.sendMessage(tab.id, {
+      action: 'setSettings',
+      effect
+    }, () => {
+      // Ignore errors if content script not ready
+    });
+  } catch (error) {
+    console.error('Failed to save effect:', error);
+  }
+}
+
+function setActiveEffect(effect) {
+  effectButtons.forEach((btn) => {
+    const active = btn.dataset.effect === effect;
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
 }
