@@ -1,6 +1,6 @@
 // 获取DOM元素
 const toggleBtn = document.getElementById('toggleBtn');
-const toggleIndicator = document.getElementById('toggleIcon');
+const toggleIndicator = document.getElementById('toggleIndicator');
 const statusText = document.getElementById('statusText');
 const effectButtons = Array.from(document.querySelectorAll('.seg-btn'));
 
@@ -86,17 +86,9 @@ async function updateStatus() {
       return;
     }
 
-    chrome.storage.sync.get(['subtitleHiderEnabled', 'subtitleHiderEffect'], (result) => {
-      if (typeof result.subtitleHiderEnabled === 'boolean') {
-        updateUI(result.subtitleHiderEnabled);
-      }
-      if (result.subtitleHiderEffect) {
-        setActiveEffect(result.subtitleHiderEffect);
-      }
-    });
-
     chrome.tabs.sendMessage(tab.id, { action: 'getStatus' }, (response) => {
       if (chrome.runtime.lastError || !response) {
+        updateUI(false);
         return;
       }
       updateUI(response.enabled);
