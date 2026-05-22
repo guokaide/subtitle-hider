@@ -1,6 +1,5 @@
 // 获取DOM元素
 const toggleBtn = document.getElementById('toggleBtn');
-const toggleIndicator = document.getElementById('toggleIndicator');
 const statusText = document.getElementById('statusText');
 const effectButtons = Array.from(document.querySelectorAll('.seg-btn'));
 

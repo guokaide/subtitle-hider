@@ -1,17 +1,27 @@
 // Background script - 处理快捷键命令
 chrome.commands.onCommand.addListener((command) => {
   if (command === 'toggle-subtitle') {
-    // 获取当前活动的标签页
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]) {
-        // 发送消息到content script
-        chrome.tabs.sendMessage(tabs[0].id, { action: 'toggle' }, (response) => {
-          if (chrome.runtime.lastError) {
-            // 如果content script还没加载，忽略错误
-            console.log('Content script not ready:', chrome.runtime.lastError.message);
-          }
-        });
+      if (!tabs[0]) return;
+      const tab = tabs[0];
+
+      if (tab.url?.startsWith('chrome://') || tab.url?.startsWith('chrome-extension://') ||
+          tab.url?.startsWith('edge://') || tab.url?.startsWith('about:')) {
+        return;
       }
+
+      chrome.tabs.sendMessage(tab.id, { action: 'toggle' }, (response) => {
+        if (chrome.runtime.lastError) {
+          chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ['content.js']
+          }).then(() => {
+            setTimeout(() => {
+              chrome.tabs.sendMessage(tab.id, { action: 'toggle' });
+            }, 100);
+          });
+        }
+      });
     });
   }
 });

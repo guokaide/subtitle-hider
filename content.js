@@ -4,38 +4,6 @@ let maskElement = null;
 let iframeMaskElements = []; // iframe 内部的遮罩
 let subtitleHiderEffect = 'blur'; // blur | mask
 
-// 检测是否为 Bilibili
-const isBilibili = () => {
-  return window.location.hostname.includes('bilibili.com');
-};
-
-// 检测 Bilibili 是否处于全屏/影院模式
-const isBilibiliFullscreen = () => {
-  if (!isBilibili()) return false;
-
-  const playerContainer = document.querySelector('.bpx-player-container') ||
-                         document.querySelector('.player-container');
-
-  if (playerContainer) {
-    const screenAttr = playerContainer.getAttribute('data-screen');
-    if (screenAttr === 'full' || screenAttr === 'web') {
-      return true;
-    }
-  }
-
-  return false;
-};
-
-// 检测浏览器原生全屏
-const isNativeFullscreen = () => {
-  return document.fullscreenElement !== null;
-};
-
-// 综合检测是否处于全屏状态（包括浏览器全屏和网页内全屏）
-const isAnyFullscreen = () => {
-  return isNativeFullscreen() || isBilibiliFullscreen();
-};
-
 // 初始化
 function init() {
   chrome.storage.sync.get(['maskPosition', 'subtitleHiderEffect'], (result) => {
@@ -65,9 +33,9 @@ function toggleSubtitle() {
   isEnabled = !isEnabled;
 
   if (isEnabled) {
-    createMask();
-    // 确保在 iframe 中也创建遮罩
-    setTimeout(createMaskInIframes, 300);
+    chrome.storage.sync.get(['maskPosition'], (result) => {
+      createMask(result.maskPosition);
+    });
   } else {
     removeMask();
     removeIframeMask();
@@ -438,7 +406,7 @@ function handleFullscreenChange() {
   delays.forEach(delay => {
     setTimeout(() => {
       updateMaskPosition();
-      enforceMaskStyles(isAnyFullscreen());
+      enforceMaskStyles();
     }, delay);
   });
 }
@@ -486,7 +454,7 @@ function observeMaskStyles() {
 
   styleObserver = new MutationObserver(() => {
     if (!isEnabled || !maskElement) return;
-    enforceMaskStyles(isAnyFullscreen());
+    enforceMaskStyles();
   });
 
   styleObserver.observe(maskElement, {
@@ -495,8 +463,20 @@ function observeMaskStyles() {
   });
 }
 
-// 强制执行遮罩样式（防止被网站CSS覆盖）
-function enforceMaskStyles(isFullscreen) {
+function pauseStyleObserver() {
+  if (styleObserver) styleObserver.disconnect();
+}
+
+function resumeStyleObserver() {
+  if (styleObserver && maskElement) {
+    styleObserver.observe(maskElement, {
+      attributes: true,
+      attributeFilter: ['style', 'class']
+    });
+  }
+}
+
+function enforceMaskStyles() {
   if (!maskElement) return;
 
   const computedStyle = window.getComputedStyle(maskElement);
@@ -512,6 +492,7 @@ function enforceMaskStyles(isFullscreen) {
       visibility === 'hidden' ||
       parseFloat(opacity) < 0.5 ||
       position === 'static') {
+    pauseStyleObserver();
     maskElement.style.setProperty('position', 'fixed', 'important');
     maskElement.style.setProperty('z-index', '2147483647', 'important');
     maskElement.style.setProperty('display', 'block', 'important');
@@ -542,17 +523,21 @@ function enforceMaskStyles(isFullscreen) {
       `;
       maskElement.appendChild(resizeHandle);
     }
+    resumeStyleObserver();
   }
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
+if (!window.__subtitleHiderInitialized) {
+  window.__subtitleHiderInitialized = true;
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      init();
+      setupMutationObserver();
+      observeMaskStyles();
+    });
+  } else {
     init();
     setupMutationObserver();
     observeMaskStyles();
-  });
-} else {
-  init();
-  setupMutationObserver();
-  observeMaskStyles();
+  }
 }
