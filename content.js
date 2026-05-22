@@ -29,11 +29,15 @@ function init() {
 }
 
 // 切换字幕显示/隐藏
+let toggleGeneration = 0;
 function toggleSubtitle() {
   isEnabled = !isEnabled;
+  const gen = ++toggleGeneration;
 
   if (isEnabled) {
     chrome.storage.sync.get(['maskPosition'], (result) => {
+      // 如果在异步等待期间状态已被再次切换，放弃本次创建
+      if (gen !== toggleGeneration) return;
       createMask(result.maskPosition);
     });
   } else {
@@ -45,6 +49,10 @@ function toggleSubtitle() {
 // 创建黑色遮罩层
 function createMask(savedPosition = null) {
   if (maskElement) return;
+
+  // 清理可能残留的孤立遮罩（脚本重新注入时变量丢失但 DOM 元素仍在）
+  const orphan = document.getElementById('subtitle-hider-mask');
+  if (orphan) orphan.remove();
 
   maskElement = document.createElement('div');
   maskElement.id = 'subtitle-hider-mask';
@@ -332,8 +340,12 @@ function applyMaskEffect(target) {
 function removeMask() {
   if (maskElement && maskElement.parentNode) {
     maskElement.parentNode.removeChild(maskElement);
-    maskElement = null;
   }
+  maskElement = null;
+
+  // 清理可能残留的孤立遮罩
+  const orphan = document.getElementById('subtitle-hider-mask');
+  if (orphan) orphan.remove();
 
   // 同时移除 iframe 中的遮罩
   removeIframeMask();
